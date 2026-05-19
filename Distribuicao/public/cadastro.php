@@ -1,17 +1,35 @@
-<?php include("../config/db.php"); ?>
+<?php
+include("../config/db.php");
+require_once("../classes/Usuario.php");
+
+$mensagem = "";
+$tipoMensagem = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    try {
+        $usuario = new Usuario($conn);
+        $usuario->cadastrar($_POST);
+        $mensagem = "Usuario cadastrado com sucesso!";
+        $tipoMensagem = "success";
+    } catch (Throwable $e) {
+        $mensagem = "Erro ao cadastrar: " . $e->getMessage();
+        $tipoMensagem = "danger";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Cadastro - Distribuição</title>
+  <title>Cadastro - Distribuicao</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
 
 <div class="container mt-5">
-  <div class="card shadow-lg p-4" style="max-width: 500px; margin: auto;">
-    <h2 class="text-center mb-4">Cadastro de Usuário</h2>
+  <div class="card shadow-lg p-4" style="max-width: 600px; margin: auto;">
+    <h2 class="text-center mb-4">Cadastro de Usuario</h2>
     <form method="POST">
       <div class="mb-3">
         <label class="form-label">Nome</label>
@@ -30,39 +48,76 @@
         <input type="text" name="telefone" class="form-control">
       </div>
       <div class="mb-3">
-        <label class="form-label">Tipo de Usuário</label>
-        <select name="tipo" class="form-select">
+        <label class="form-label">Tipo de Usuario</label>
+        <select name="tipo" class="form-select" id="tipoUsuario">
           <option value="doador">Doador</option>
-          <option value="beneficiario">Beneficiário</option>
-          <option value="voluntario">Voluntário</option>
-          <option value="deposito">Depósito</option>
+          <option value="beneficiario">Beneficiario</option>
+          <option value="voluntario">Voluntario</option>
+          <option value="deposito">Deposito</option>
         </select>
       </div>
+
+      <div class="mb-3 campo-extra" data-tipo="doador">
+        <label class="form-label">CPF/CNPJ</label>
+        <input type="text" name="cnpj_cpf" class="form-control">
+      </div>
+      <div class="mb-3 campo-extra d-none" data-tipo="beneficiario">
+        <label class="form-label">Numero de pessoas na casa</label>
+        <input type="number" name="num_pessoas_casa" class="form-control" min="1" value="1">
+      </div>
+      <div class="mb-3 campo-extra d-none" data-tipo="voluntario">
+        <label class="form-label">Disponibilidade</label>
+        <input type="text" name="disponibilidade" class="form-control">
+      </div>
+      <div class="campo-extra d-none" data-tipo="deposito">
+        <div class="mb-3">
+          <label class="form-label">Nome do deposito</label>
+          <input type="text" name="nome_deposito" class="form-control">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Endereco</label>
+          <input type="text" name="endereco" class="form-control">
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Latitude</label>
+            <input type="number" step="0.00000001" name="latitude" class="form-control">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Longitude</label>
+            <input type="number" step="0.00000001" name="longitude" class="form-control">
+          </div>
+        </div>
+      </div>
+
       <button type="submit" class="btn btn-primary w-100">Cadastrar</button>
     </form>
+
+    <?php if (!empty($mensagem)): ?>
+      <div class="alert alert-<?php echo $tipoMensagem; ?> text-center mt-3">
+        <?php echo htmlspecialchars($mensagem); ?>
+      </div>
+    <?php endif; ?>
   </div>
 </div>
 
 <footer class="text-center mt-5">
-  <img src="../assets/logo.png" alt="Distribuição" class="logo-footer">
+  <img src="../assets/logo.png" alt="Distribuicao" class="logo-footer">
 </footer>
 
-<?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nome = $_POST["nome"];
-    $email = $_POST["email"];
-    $senha = password_hash($_POST["senha"], PASSWORD_DEFAULT);
-    $telefone = $_POST["telefone"];
-    $tipo = $_POST["tipo"];
+<script>
+  const tipoUsuario = document.getElementById('tipoUsuario');
+  const camposExtras = document.querySelectorAll('.campo-extra');
 
-    $sql = "INSERT INTO usuario (nome,email,senha,telefone,tipo) 
-            VALUES ('$nome','$email','$senha','$telefone','$tipo')";
-    if ($conn->query($sql) === TRUE) {
-        echo "<div class='alert alert-success text-center mt-3'>Usuário cadastrado com sucesso!</div>";
-    } else {
-        echo "<div class='alert alert-danger text-center mt-3'>Erro: " . $conn->error . "</div>";
-    }
-}
-?>
+  function atualizarCamposExtras() {
+    camposExtras.forEach((campo) => {
+      campo.classList.toggle('d-none', campo.dataset.tipo !== tipoUsuario.value);
+    });
+  }
+
+  tipoUsuario.addEventListener('change', atualizarCamposExtras);
+  atualizarCamposExtras();
+</script>
+
 </body>
 </html>

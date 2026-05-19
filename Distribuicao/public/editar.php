@@ -1,17 +1,30 @@
-<?php 
-include("../config/db.php"); 
+<?php
+include("../config/db.php");
+require_once("../classes/Usuario.php");
 session_start();
-if(!isset($_SESSION["usuario"])) {
+
+if (!isset($_SESSION["id_usuario"])) {
     header("Location: login.php");
     exit();
 }
-$usuario = $_SESSION["usuario"];
-$tipo = $_SESSION["tipo"];
 
-// Busca dados atuais
-$sql = "SELECT * FROM usuario WHERE nome='$usuario' AND tipo='$tipo'";
-$result = $conn->query($sql);
-$dados = $result->fetch_assoc();
+$idUsuario = $_SESSION["id_usuario"];
+$mensagem = "";
+$tipoMensagem = "";
+$usuarioService = new Usuario($conn);
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if ($usuarioService->atualizarDados($idUsuario, $_POST)) {
+        $_SESSION["usuario"] = trim($_POST["nome"]);
+        $mensagem = "Cadastro atualizado com sucesso!";
+        $tipoMensagem = "success";
+    } else {
+        $mensagem = "Erro ao atualizar cadastro.";
+        $tipoMensagem = "danger";
+    }
+}
+
+$dados = $usuarioService->consultarPorId($idUsuario);
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -26,47 +39,29 @@ $dados = $result->fetch_assoc();
 <form method="POST">
   <div class="mb-3">
     <label class="form-label">Nome</label>
-    <input type="text" name="nome" class="form-control" value="<?php echo $dados['nome']; ?>" required>
+    <input type="text" name="nome" class="form-control" value="<?php echo htmlspecialchars($dados['nome']); ?>" required>
   </div>
   <div class="mb-3">
     <label class="form-label">Email</label>
-    <input type="email" name="email" class="form-control" value="<?php echo $dados['email']; ?>" required>
+    <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($dados['email']); ?>" required>
   </div>
   <div class="mb-3">
     <label class="form-label">Telefone</label>
-    <input type="text" name="telefone" class="form-control" value="<?php echo $dados['telefone']; ?>">
+    <input type="text" name="telefone" class="form-control" value="<?php echo htmlspecialchars($dados['telefone'] ?? ''); ?>">
   </div>
   <div class="mb-3">
-    <label class="form-label">Senha (deixe em branco se não quiser alterar)</label>
+    <label class="form-label">Senha (deixe em branco se nao quiser alterar)</label>
     <input type="password" name="senha" class="form-control">
   </div>
-  <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+  <button type="submit" class="btn btn-primary">Salvar Alteracoes</button>
+  <a href="dashboard.php" class="btn btn-secondary">Voltar</a>
 </form>
 
-<?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nome = $_POST["nome"];
-    $email = $_POST["email"];
-    $telefone = $_POST["telefone"];
-    $senha = $_POST["senha"];
-
-    if (!empty($senha)) {
-        $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
-        $sqlUpdate = "UPDATE usuario SET nome='$nome', email='$email', telefone='$telefone', senha='$senhaHash' 
-                      WHERE id=".$dados['id'];
-    } else {
-        $sqlUpdate = "UPDATE usuario SET nome='$nome', email='$email', telefone='$telefone' 
-                      WHERE id=".$dados['id'];
-    }
-
-    if ($conn->query($sqlUpdate) === TRUE) {
-        echo "<div class='alert alert-success mt-3'>Cadastro atualizado com sucesso!</div>";
-        $_SESSION["usuario"] = $nome; // Atualiza sessão
-    } else {
-        echo "<div class='alert alert-danger mt-3'>Erro: " . $conn->error . "</div>";
-    }
-}
-?>
+<?php if (!empty($mensagem)): ?>
+  <div class="alert alert-<?php echo $tipoMensagem; ?> mt-3">
+    <?php echo htmlspecialchars($mensagem); ?>
+  </div>
+<?php endif; ?>
 
 </body>
 </html>
