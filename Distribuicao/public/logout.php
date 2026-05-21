@@ -41,8 +41,8 @@ session_destroy();
   <h3 class="mb-3">“Cada alimento doado é um gesto de esperança.”</h3>
   <p class="lead">Você saiu da sua conta. Em breve será redirecionado para a página inicial.</p>
   <div class="d-flex justify-content-center gap-3 mt-3">
-    <a href="index.php" class="btn btn-primary">🏠 Início</a>
-    <a href="login.php" class="btn btn-secondary">🔑 Login</a>
+    <a href="index.php" class="btn btn-primary">Início</a>
+    <a href="login.php" class="btn btn-secondary">Login</a>
   </div>
 </div>
 

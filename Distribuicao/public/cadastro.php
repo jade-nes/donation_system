@@ -31,6 +31,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <title>Cadastro - Distribuição</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../assets/style.css">
+  <?php if ($tipoMensagem === "success"): ?>
+    <script>
+      setTimeout(function(){
+        window.location.href = "login.php";
+      }, 10000); // 10 segundos
+    </script>
+  <?php endif; ?>
 </head>
 <body>
 
@@ -109,10 +116,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </form>
 
     <?php if (!empty($mensagem)): ?>
-      <div class="alert alert-<?php echo $tipoMensagem; ?> text-center mt-3">
-        <?php echo htmlspecialchars($mensagem); ?>
-      </div>
+  <div class="alert alert-<?php echo $tipoMensagem; ?> text-center mt-3">
+    <?php echo htmlspecialchars($mensagem); ?>
+    <?php if ($tipoMensagem === "success"): ?>
+      <p id="contador" class="mt-2">Você será redirecionado para o login em 10 segundos...</p>
+      <script>
+        let segundos = 10;
+        const contador = document.getElementById("contador");
+        const intervalo = setInterval(() => {
+          segundos--;
+          contador.textContent = "Você será redirecionado para o login em " + segundos + " segundos...";
+          if (segundos <= 0) {
+            clearInterval(intervalo);
+            window.location.href = "login.php";
+          }
+        }, 1000);
+      </script>
     <?php endif; ?>
+  </div>
+<?php endif; ?>
   </div>
 </div>
 

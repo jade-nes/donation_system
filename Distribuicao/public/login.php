@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header("Location: dashboard.php");
         exit();
     } else {
-        $mensagem = "Email ou senha invalidos.";
+        $mensagem = "Email ou senha inválidos.";
         $tipoMensagem = "warning";
     }
 }
@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Login - Distribuicao</title>
+  <title>Login - Distribuição</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../assets/style.css">
 </head>
@@ -47,22 +47,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label class="form-label">Senha</label>
         <input type="password" name="senha" class="form-control" required>
       </div>
+      <div class="text-end mb-3">
+        <a href="recuperar_senha.php" class="text-decoration-none">Esqueceu a senha?</a>
+      </div>
       <button type="submit" class="btn btn-primary w-100">Entrar</button>
     </form>
     <div class="text-center mt-3">
-      <a href="cadastro.php" class="text-decoration-none">Ainda nao tem conta? Cadastre-se</a>
+      <a href="cadastro.php" class="text-decoration-none">Ainda não tem conta? Cadastre-se</a>
     </div>
 
     <?php if (!empty($mensagem)): ?>
       <div class="alert alert-<?php echo $tipoMensagem; ?> text-center mt-3">
-        <?php echo $mensagem; ?>
+        <?php echo htmlspecialchars($mensagem); ?>
       </div>
     <?php endif; ?>
   </div>
 </div>
 
 <footer class="text-center mt-5">
-  <img src="../assets/logo.png" alt="Distribuicao" class="logo-footer">
+  <img src="../assets/logo.png" alt="Distribuição" class="logo-footer">
 </footer>
 
 </body>
