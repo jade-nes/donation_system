@@ -1,11 +1,13 @@
 <?php
+require_once("auth.php"); // garante login
+
 include("../config/db.php");
 require_once("../classes/Estoque.php");
 require_once("../classes/Deposito.php");
-session_start();
 
-if (!isset($_SESSION["id_usuario"]) || $_SESSION["tipo"] != "deposito") {
-    header("Location: login.php");
+// permite depósito OU admin
+if ($_SESSION["tipo"] !== "deposito" && $_SESSION["tipo"] !== "admin") {
+    header("Location: dashboard.php");
     exit();
 }
 
@@ -13,10 +15,17 @@ $usuario = $_SESSION["usuario"];
 $idUsuario = $_SESSION["id_usuario"];
 $mensagem = "";
 $tipoMensagem = "";
+
 $depositoService = new Deposito($conn);
 $estoqueService = new Estoque($conn);
 
 $deposito = $depositoService->obterPorUsuario($idUsuario);
+
+// se for admin, força como válido
+if ($_SESSION["tipo"] === "admin") {
+    $deposito = true;
+}
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $deposito) {
     $acao = $_POST["acao"] ?? "adicionar";

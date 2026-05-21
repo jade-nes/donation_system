@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Abrir Chrome no donation_system",
+            "url": "http://localhost/donation_system/Distribuicao/public/index.php",
+            "webRoot": "${workspaceFolder}"
+        }
+    ]
+}

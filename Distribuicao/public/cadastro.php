@@ -7,9 +7,16 @@ $tipoMensagem = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
+        // Validação extra para Admin
+        if ($_POST['tipo'] === 'admin') {
+            if (empty($_POST['codigo_admin']) || $_POST['codigo_admin'] !== 'secreto123') {
+                throw new Exception("Código de autenticação inválido para Admin.");
+            }
+        }
+
         $usuario = new Usuario($conn);
         $usuario->cadastrar($_POST);
-        $mensagem = "Usuario cadastrado com sucesso!";
+        $mensagem = "Usuário cadastrado com sucesso!";
         $tipoMensagem = "success";
     } catch (Throwable $e) {
         $mensagem = "Erro ao cadastrar: " . $e->getMessage();
@@ -21,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Cadastro - Distribuicao</title>
+  <title>Cadastro - Distribuição</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../assets/style.css">
 </head>
@@ -29,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <div class="container mt-5">
   <div class="card shadow-lg p-4" style="max-width: 600px; margin: auto;">
-    <h2 class="text-center mb-4">Cadastro de Usuario</h2>
+    <h2 class="text-center mb-4">Cadastro de Usuário</h2>
     <form method="POST">
       <div class="mb-3">
         <label class="form-label">Nome</label>
@@ -48,21 +55,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="text" name="telefone" class="form-control">
       </div>
       <div class="mb-3">
-        <label class="form-label">Tipo de Usuario</label>
+        <label class="form-label">Tipo de Usuário</label>
         <select name="tipo" class="form-select" id="tipoUsuario">
           <option value="doador">Doador</option>
-          <option value="beneficiario">Beneficiario</option>
-          <option value="voluntario">Voluntario</option>
-          <option value="deposito">Deposito</option>
+          <option value="beneficiario">Beneficiário</option>
+          <option value="voluntario">Voluntário</option>
+          <option value="deposito">Depósito</option>
+          <option value="admin">Admin</option>
         </select>
       </div>
 
+      <!-- Campos extras -->
       <div class="mb-3 campo-extra" data-tipo="doador">
         <label class="form-label">CPF/CNPJ</label>
         <input type="text" name="cnpj_cpf" class="form-control">
       </div>
       <div class="mb-3 campo-extra d-none" data-tipo="beneficiario">
-        <label class="form-label">Numero de pessoas na casa</label>
+        <label class="form-label">Número de pessoas na casa</label>
         <input type="number" name="num_pessoas_casa" class="form-control" min="1" value="1">
       </div>
       <div class="mb-3 campo-extra d-none" data-tipo="voluntario">
@@ -71,11 +80,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       </div>
       <div class="campo-extra d-none" data-tipo="deposito">
         <div class="mb-3">
-          <label class="form-label">Nome do deposito</label>
+          <label class="form-label">Nome do depósito</label>
           <input type="text" name="nome_deposito" class="form-control">
         </div>
         <div class="mb-3">
-          <label class="form-label">Endereco</label>
+          <label class="form-label">Endereço</label>
           <input type="text" name="endereco" class="form-control">
         </div>
         <div class="row">
@@ -90,6 +99,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
       </div>
 
+      <!-- Campo extra para Admin -->
+      <div class="mb-3 campo-extra d-none" data-tipo="admin">
+        <label class="form-label">Código de Autenticação</label>
+        <input type="text" name="codigo_admin" class="form-control" placeholder="Digite o código secreto">
+      </div>
+
       <button type="submit" class="btn btn-primary w-100">Cadastrar</button>
     </form>
 
@@ -102,7 +117,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </div>
 
 <footer class="text-center mt-5">
-  <img src="../assets/logo.png" alt="Distribuicao" class="logo-footer">
+  <img src="../assets/logo.png" alt="Distribuição" class="logo-footer">
 </footer>
 
 <script>

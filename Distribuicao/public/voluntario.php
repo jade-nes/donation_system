@@ -1,11 +1,13 @@
 <?php
+require_once("auth.php"); // garante login
+
 include("../config/db.php");
 require_once("../classes/Voluntario.php");
 require_once("../classes/Entrega.php");
-session_start();
 
-if (!isset($_SESSION["id_usuario"]) || $_SESSION["tipo"] != "voluntario") {
-    header("Location: login.php");
+// permite voluntário OU admin
+if ($_SESSION["tipo"] !== "voluntario" && $_SESSION["tipo"] !== "admin") {
+    header("Location: dashboard.php");
     exit();
 }
 
@@ -13,10 +15,16 @@ $usuario = $_SESSION["usuario"];
 $idUsuario = $_SESSION["id_usuario"];
 $mensagem = "";
 $tipoMensagem = "";
+
 $voluntarioService = new Voluntario($conn);
 $entregaService = new Entrega($conn);
 
 $voluntario = $voluntarioService->obterPorUsuario($idUsuario);
+
+// se for admin, força como válido
+if ($_SESSION["tipo"] === "admin") {
+    $voluntario = true;
+}
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $voluntario) {
     $acao = $_POST["acao"] ?? "registrar";

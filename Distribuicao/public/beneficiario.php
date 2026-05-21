@@ -1,11 +1,13 @@
 <?php
+require_once("auth.php"); // garante que está logado
+
 include("../config/db.php");
 require_once("../classes/Receita.php");
 require_once("../classes/Beneficiario.php");
-session_start();
 
-if (!isset($_SESSION["id_usuario"]) || $_SESSION["tipo"] != "beneficiario") {
-    header("Location: login.php");
+// permite beneficiário OU admin
+if ($_SESSION["tipo"] !== "beneficiario" && $_SESSION["tipo"] !== "admin") {
+    header("Location: dashboard.php");
     exit();
 }
 
@@ -14,12 +16,13 @@ $beneficiarioService = new Beneficiario($conn);
 $estoque = $beneficiarioService->consultarDepositos();
 $pontos = $beneficiarioService->localizarPontos();
 $receitas = $beneficiarioService->verReceitas();
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Beneficiario - Alimentos Disponiveis</title>
+  <title>Beneficiário - Alimentos Disponíveis</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../assets/style.css">
 </head>
@@ -27,29 +30,25 @@ $receitas = $beneficiarioService->verReceitas();
 
 <div class="d-flex">
   <div class="sidebar bg-primary text-white p-3">
-    <h3 class="mb-4">Distribuicao</h3>
+    <h3 class="mb-4">Distribuição</h3>
     <ul class="nav flex-column">
-      <li class="nav-item mb-2"><a href="dashboard.php" class="nav-link text-white">Inicio</a></li>
-      <li class="nav-item mb-2"><a href="beneficiario.php" class="nav-link text-white">Alimentos Disponiveis</a></li>
+      <li class="nav-item mb-2"><a href="dashboard.php" class="nav-link text-white">Início</a></li>
+      <li class="nav-item mb-2"><a href="beneficiario.php" class="nav-link text-white">Alimentos Disponíveis</a></li>
       <li class="nav-item mt-4"><a href="logout.php" class="btn btn-light w-100">Sair</a></li>
     </ul>
   </div>
 
   <div class="content flex-grow-1 p-4">
     <h2>Bem-vindo, <?php echo htmlspecialchars($usuario); ?>!</h2>
-    <p class="lead">Consulte os alimentos cadastrados nos depositos.</p>
+    <p class="lead">Consulte os alimentos cadastrados nos depósitos.</p>
 
+    <!-- Alimentos -->
     <div class="card p-3 shadow-sm mt-4">
-      <h5>Alimentos Disponiveis</h5>
+      <h5>Alimentos Disponíveis</h5>
       <table class="table table-striped">
         <thead>
           <tr>
-            <th>Alimento</th>
-            <th>Quantidade</th>
-            <th>Unidade</th>
-            <th>Validade</th>
-            <th>Deposito</th>
-            <th>Endereco</th>
+            <th>Alimento</th><th>Quantidade</th><th>Unidade</th><th>Validade</th><th>Depósito</th><th>Endereço</th>
           </tr>
         </thead>
         <tbody>
@@ -65,24 +64,18 @@ $receitas = $beneficiarioService->verReceitas();
               </tr>
             <?php endforeach; ?>
           <?php else: ?>
-            <tr>
-              <td colspan="6" class="text-center">Nenhum alimento disponivel no momento.</td>
-            </tr>
+            <tr><td colspan="6" class="text-center">Nenhum alimento disponível no momento.</td></tr>
           <?php endif; ?>
         </tbody>
       </table>
     </div>
 
+    <!-- Pontos -->
     <div class="card p-3 shadow-sm mt-4">
-      <h5>Pontos de Distribuicao</h5>
+      <h5>Pontos de Distribuição</h5>
       <table class="table table-striped">
         <thead>
-          <tr>
-            <th>Deposito</th>
-            <th>Endereco</th>
-            <th>Latitude</th>
-            <th>Longitude</th>
-          </tr>
+          <tr><th>Depósito</th><th>Endereço</th><th>Latitude</th><th>Longitude</th></tr>
         </thead>
         <tbody>
           <?php if (!empty($pontos)): ?>
@@ -95,14 +88,13 @@ $receitas = $beneficiarioService->verReceitas();
               </tr>
             <?php endforeach; ?>
           <?php else: ?>
-            <tr>
-              <td colspan="4" class="text-center">Nenhum ponto com localizacao cadastrada.</td>
-            </tr>
+            <tr><td colspan="4" class="text-center">Nenhum ponto com localização cadastrada.</td></tr>
           <?php endif; ?>
         </tbody>
       </table>
     </div>
 
+    <!-- Receitas -->
     <div class="card p-3 shadow-sm mt-4">
       <h5>Receitas</h5>
       <div class="row">
@@ -125,7 +117,7 @@ $receitas = $beneficiarioService->verReceitas();
 </div>
 
 <footer class="text-center mt-5">
-  <img src="../assets/logo.png" alt="Distribuicao" class="logo-footer">
+  <img src="../assets/logo.png" alt="Distribuição" class="logo-footer">
 </footer>
 
 </body>

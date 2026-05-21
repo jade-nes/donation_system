@@ -5,13 +5,22 @@ USE distribuicao_alimentos;
 -- TABELA USUARIO
 -- =========================================
 CREATE TABLE usuario (
-    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
-    email VARCHAR(120) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
     senha VARCHAR(255) NOT NULL,
     telefone VARCHAR(20),
-    tipo ENUM('doador', 'beneficiario', 'voluntario', 'deposito') NOT NULL
+    tipo ENUM('doador','beneficiario','voluntario','deposito','admin') NOT NULL,
+    cnpj_cpf VARCHAR(20),
+    num_pessoas_casa INT,
+    disponibilidade VARCHAR(100),
+    nome_deposito VARCHAR(100),
+    endereco VARCHAR(255),
+    latitude DECIMAL(10,8),
+    longitude DECIMAL(11,8),
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 
 -- =========================================
 -- TABELA DOADOR

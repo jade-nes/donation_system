@@ -1,11 +1,13 @@
 <?php
+require_once("auth.php"); // garante login
+
 include("../config/db.php");
 require_once("../classes/Doador.php");
 require_once("../classes/Doacao.php");
-session_start();
 
-if (!isset($_SESSION["id_usuario"]) || $_SESSION["tipo"] != "doador") {
-    header("Location: login.php");
+// permite doador OU admin
+if ($_SESSION["tipo"] !== "doador" && $_SESSION["tipo"] !== "admin") {
+    header("Location: dashboard.php");
     exit();
 }
 
@@ -13,10 +15,17 @@ $usuario = $_SESSION["usuario"];
 $idUsuario = $_SESSION["id_usuario"];
 $mensagem = "";
 $tipoMensagem = "";
+
 $doadorService = new Doador($conn);
 $doacaoService = new Doacao($conn);
 
 $doador = $doadorService->obterPorUsuario($idUsuario);
+
+// se for admin, força como válido
+if ($_SESSION["tipo"] === "admin") {
+    $doador = true;
+}
+
 $depositos = $doadorService->consultarDepositos();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $doador) {
@@ -24,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $doador) {
 
     if ($acao === "cancelar") {
         $ok = $doacaoService->cancelar((int)$_POST["id_doacao"]);
-        $mensagem = $ok ? "Doacao cancelada!" : "Erro ao cancelar doacao.";
+        $mensagem = $ok ? "Doação cancelada!" : "Erro ao cancelar doação.";
         $tipoMensagem = $ok ? "success" : "danger";
     } else {
         $alimento = trim($_POST["alimento"]);
@@ -32,10 +41,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $doador) {
         $idDeposito = (int)$_POST["id_deposito"];
 
         if ($doadorService->realizarDoacao($idUsuario, $idDeposito, $alimento, $quantidade)) {
-            $mensagem = "Doacao registrada com sucesso!";
+            $mensagem = "Doação registrada com sucesso!";
             $tipoMensagem = "success";
         } else {
-            $mensagem = "Erro ao registrar doacao.";
+            $mensagem = "Erro ao registrar doação.";
             $tipoMensagem = "danger";
         }
     }
@@ -47,7 +56,7 @@ $historico = $doadorService->verHistorico($idUsuario);
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Doador - Registrar Doacao</title>
+  <title>Doador - Registrar Doação</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../assets/style.css">
 </head>
@@ -55,21 +64,22 @@ $historico = $doadorService->verHistorico($idUsuario);
 
 <div class="d-flex">
   <div class="sidebar bg-primary text-white p-3">
-    <h3 class="mb-4">Distribuicao</h3>
+    <h3 class="mb-4">Distribuição</h3>
     <ul class="nav flex-column">
-      <li class="nav-item mb-2"><a href="dashboard.php" class="nav-link text-white">Inicio</a></li>
-      <li class="nav-item mb-2"><a href="doador.php" class="nav-link text-white">Registrar Doacao</a></li>
+      <li class="nav-item mb-2"><a href="dashboard.php" class="nav-link text-white">Início</a></li>
+      <li class="nav-item mb-2"><a href="doador.php" class="nav-link text-white">Registrar Doação</a></li>
       <li class="nav-item mt-4"><a href="logout.php" class="btn btn-light w-100">Sair</a></li>
     </ul>
   </div>
 
   <div class="content flex-grow-1 p-4">
     <h2>Bem-vindo, <?php echo htmlspecialchars($usuario); ?>!</h2>
-    <p class="lead">Aqui voce pode registrar novas doacoes de alimentos.</p>
+    <p class="lead">Aqui você pode registrar novas doações de alimentos.</p>
 
     <?php if (!$doador): ?>
-      <div class="alert alert-danger">Seu usuario nao possui cadastro de doador vinculado.</div>
+      <div class="alert alert-danger">Seu usuário não possui cadastro de doador vinculado.</div>
     <?php else: ?>
+      <!-- Formulário de doação -->
       <div class="card p-4 shadow-sm mt-3">
         <form method="POST">
           <input type="hidden" name="acao" value="registrar">
@@ -82,7 +92,7 @@ $historico = $doadorService->verHistorico($idUsuario);
             <input type="text" name="quantidade" class="form-control" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Deposito de Entrega</label>
+            <label class="form-label">Depósito de Entrega</label>
             <select name="id_deposito" class="form-select" required>
               <?php foreach ($depositos as $deposito): ?>
                 <option value="<?php echo $deposito["id_deposito"]; ?>">
@@ -91,20 +101,17 @@ $historico = $doadorService->verHistorico($idUsuario);
               <?php endforeach; ?>
             </select>
           </div>
-          <button type="submit" class="btn btn-success w-100">Registrar Doacao</button>
+          <button type="submit" class="btn btn-success w-100">Registrar Doação</button>
         </form>
       </div>
 
+      <!-- Histórico -->
       <div class="card p-3 shadow-sm mt-4">
-        <h5>Historico de Doacoes</h5>
+        <h5>Histórico de Doações</h5>
         <table class="table table-striped">
           <thead>
             <tr>
-              <th>Data</th>
-              <th>Deposito</th>
-              <th>Descricao</th>
-              <th>Status</th>
-              <th>Acoes</th>
+              <th>Data</th><th>Depósito</th><th>Descrição</th><th>Status</th><th>Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -127,9 +134,7 @@ $historico = $doadorService->verHistorico($idUsuario);
                 </tr>
               <?php endforeach; ?>
             <?php else: ?>
-              <tr>
-                <td colspan="5" class="text-center">Nenhuma doacao registrada.</td>
-              </tr>
+              <tr><td colspan="5" class="text-center">Nenhuma doação registrada.</td></tr>
             <?php endif; ?>
           </tbody>
         </table>
@@ -145,7 +150,7 @@ $historico = $doadorService->verHistorico($idUsuario);
 </div>
 
 <footer class="text-center mt-5">
-  <img src="../assets/logo.png" alt="Distribuicao" class="logo-footer">
+  <img src="../assets/logo.png" alt="Distribuição" class="logo-footer">
 </footer>
 
 </body>
