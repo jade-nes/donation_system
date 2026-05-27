@@ -60,11 +60,26 @@ footer {
   text-align: center;
 }
 
-/* Sidebar (menu lateral do dashboard) */
+/* ── Sidebar fixa ─────────────────────────────────────────── */
 .sidebar {
-  width: 220px;
-  min-height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 230px;
+  height: 100vh;
   background-color: #007bff;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.sidebar ul {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-left: 0;
+  margin-bottom: 0;
 }
 
 .sidebar h3 {
@@ -73,6 +88,7 @@ footer {
 }
 
 .sidebar .nav-link {
+  font-size: 1rem;
   font-weight: 500;
   color: #fff;
   padding: 8px 12px;
@@ -81,15 +97,20 @@ footer {
 
 .sidebar .nav-link:hover {
   background-color: rgba(255,255,255,0.2);
+  text-decoration: none;
 }
 
-/* Área principal do dashboard */
-.content {
-  background-color: rgba(255,255,255,0.85);
-  border-radius: 12px;
-  margin: 20px;
-  padding: 20px;
-  flex-grow: 1;
+/* Botão Sair sempre no rodapé da sidebar */
+.sidebar .sair {
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+/* ── Área principal (offset da sidebar) ─────────────────── */
+.main-content {
+  margin-left: 230px;
+  padding: 2rem;
+  min-height: 100vh;
 }
 
 /* Responsividade */
@@ -102,7 +123,12 @@ footer {
     width: 120px;
   }
   .sidebar {
+    position: relative;
     width: 100%;
-    min-height: auto;
+    height: auto;
+  }
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
   }
 }

@@ -113,6 +113,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       </div>
 
       <button type="submit" class="btn btn-primary w-100">Cadastrar</button>
+      <a href="login.php" class="btn btn-secondary w-100 mt-2">Voltar à página de login</a>
     </form>
 
     <?php if (!empty($mensagem)): ?>

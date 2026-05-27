@@ -115,6 +115,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       </div>
 
       <button type="submit" class="btn btn-primary w-100">Salvar Alterações</button>
+      <button type="button" class="btn btn-secondary w-100 mt-2" onclick="window.location.href='dashboard.php'">Voltar à tela inicial</button>
     </form>
 
     <?php if (!empty($mensagem)): ?>

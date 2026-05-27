@@ -62,21 +62,23 @@ $entregas = $voluntarioService->verAgenda($idUsuario);
   <meta charset="UTF-8">
   <title>Voluntario - Entregas</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
 
 <div class="d-flex">
-  <div class="sidebar bg-primary text-white p-3">
+  <div class="sidebar bg-primary text-white p-3" style="position:fixed; top:0; left:0; width:230px; height:100vh; display:flex; flex-direction:column; overflow-y:auto; z-index:100;">
     <h3 class="mb-4">Distribuicao</h3>
-    <ul class="nav flex-column">
-      <li class="nav-item mb-2"><a href="dashboard.php" class="nav-link text-white">Inicio</a></li>
-      <li class="nav-item mb-2"><a href="voluntario.php" class="nav-link text-white">Registrar Entrega</a></li>
-      <li class="nav-item mt-4"><a href="logout.php" class="btn btn-light w-100">Sair</a></li>
+    <ul class="nav flex-column" style="display:flex; flex-direction:column; flex:1;">
+      <li class="nav-item mb-2"><a href="dashboard.php" class="nav-link text-white"><i class="bi bi-house-door me-2"></i>Início</a></li>
+      <li class="nav-item mb-2"><a href="voluntario.php" class="nav-link text-white"><i class="bi bi-truck me-2"></i>Registrar Entrega</a></li>
+      <li class="nav-item mb-2"><a href="editar.php?id=<?php echo $_SESSION['id_usuario']; ?>" class="nav-link text-white"><i class="bi bi-pencil-square me-2"></i>Editar Cadastro</a></li>
+      <li style="margin-top:auto; padding-top:1rem;"><a href="logout.php" class="btn btn-light w-100"><i class="bi bi-box-arrow-right me-2"></i>Sair</a></li>
     </ul>
   </div>
 
-  <div class="content flex-grow-1 p-4">
+  <div class="content flex-grow-1 p-4" style="margin-left:250px;">
     <h2>Bem-vindo, <?php echo htmlspecialchars($usuario); ?>!</h2>
     <p class="lead">Aqui voce pode registrar e acompanhar entregas realizadas.</p>
 
@@ -172,7 +174,7 @@ $entregas = $voluntarioService->verAgenda($idUsuario);
   </div>
 </div>
 
-<footer class="text-center mt-5">
+<footer class="mt-5" style="margin-left:250px; text-align:center;">
   <img src="../assets/logo.png" alt="Distribuicao" class="logo-footer">
 </footer>
 

@@ -1,11 +1,10 @@
 <?php
-require_once("auth.php"); // garante login
+require_once("auth.php");
 
 include("../config/db.php");
 require_once("../classes/Doador.php");
 require_once("../classes/Doacao.php");
 
-// permite doador OU admin
 if ($_SESSION["tipo"] !== "doador" && $_SESSION["tipo"] !== "admin") {
     header("Location: dashboard.php");
     exit();
@@ -21,7 +20,6 @@ $doacaoService = new Doacao($conn);
 
 $doador = $doadorService->obterPorUsuario($idUsuario);
 
-// se for admin, força como válido
 if ($_SESSION["tipo"] === "admin") {
     $doador = true;
 }
@@ -58,98 +56,104 @@ $historico = $doadorService->verHistorico($idUsuario);
   <meta charset="UTF-8">
   <title>Doador - Registrar Doação</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .sidebar {
+      position: fixed; top: 0; left: 0;
+      width: 230px; height: 100vh;
+      display: flex; flex-direction: column;
+      overflow-y: auto; z-index: 100;
+    }
+    .sidebar ul { display: flex; flex-direction: column; flex: 1; }
+    .main-content { margin-left: 230px; padding: 2rem; }
+  </style>
 </head>
 <body>
 
-<div class="d-flex">
-  <div class="sidebar bg-primary text-white p-3">
-    <h3 class="mb-4">Distribuição</h3>
-    <ul class="nav flex-column">
-      <li class="nav-item mb-2"><a href="dashboard.php" class="nav-link text-white">Início</a></li>
-      <li class="nav-item mb-2"><a href="doador.php" class="nav-link text-white">Registrar Doação</a></li>
-      <li class="nav-item mt-4"><a href="logout.php" class="btn btn-light w-100">Sair</a></li>
-    </ul>
-  </div>
-
-  <div class="content flex-grow-1 p-4">
-    <h2>Bem-vindo, <?php echo htmlspecialchars($usuario); ?>!</h2>
-    <p class="lead">Aqui você pode registrar novas doações de alimentos.</p>
-
-    <?php if (!$doador): ?>
-      <div class="alert alert-danger">Seu usuário não possui cadastro de doador vinculado.</div>
-    <?php else: ?>
-      <!-- Formulário de doação -->
-      <div class="card p-4 shadow-sm mt-3">
-        <form method="POST">
-          <input type="hidden" name="acao" value="registrar">
-          <div class="mb-3">
-            <label class="form-label">Nome do Alimento</label>
-            <input type="text" name="alimento" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Quantidade</label>
-            <input type="text" name="quantidade" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Depósito de Entrega</label>
-            <select name="id_deposito" class="form-select" required>
-              <?php foreach ($depositos as $deposito): ?>
-                <option value="<?php echo $deposito["id_deposito"]; ?>">
-                  <?php echo htmlspecialchars($deposito["nome"] . " - " . $deposito["endereco"]); ?>
-                </option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-          <button type="submit" class="btn btn-success w-100">Registrar Doação</button>
-        </form>
-      </div>
-
-      <!-- Histórico -->
-      <div class="card p-3 shadow-sm mt-4">
-        <h5>Histórico de Doações</h5>
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Data</th><th>Depósito</th><th>Descrição</th><th>Status</th><th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php if (!empty($historico)): ?>
-              <?php foreach ($historico as $row): ?>
-                <tr>
-                  <td><?php echo htmlspecialchars($row["data_doacao"]); ?></td>
-                  <td><?php echo htmlspecialchars($row["deposito"]); ?></td>
-                  <td><?php echo htmlspecialchars($row["descricao"]); ?></td>
-                  <td><?php echo htmlspecialchars($row["status"]); ?></td>
-                  <td>
-                    <?php if ($row["status"] === "pendente"): ?>
-                      <form method="POST">
-                        <input type="hidden" name="acao" value="cancelar">
-                        <input type="hidden" name="id_doacao" value="<?php echo $row["id_doacao"]; ?>">
-                        <button type="submit" class="btn btn-sm btn-outline-danger">Cancelar</button>
-                      </form>
-                    <?php endif; ?>
-                  </td>
-                </tr>
-              <?php endforeach; ?>
-            <?php else: ?>
-              <tr><td colspan="5" class="text-center">Nenhuma doação registrada.</td></tr>
-            <?php endif; ?>
-          </tbody>
-        </table>
-      </div>
-    <?php endif; ?>
-
-    <?php if (!empty($mensagem)): ?>
-      <div class="alert alert-<?php echo $tipoMensagem; ?> mt-3">
-        <?php echo htmlspecialchars($mensagem); ?>
-      </div>
-    <?php endif; ?>
-  </div>
+<div class="sidebar bg-primary text-white p-3">
+  <h3 class="mb-4">Distribuição</h3>
+  <ul class="nav flex-column flex-grow-1">
+    <li class="nav-item mb-2"><a href="dashboard.php" class="nav-link text-white"><i class="bi bi-house-door me-2"></i>Início</a></li>
+    <li class="nav-item mb-2"><a href="doador.php" class="nav-link text-white"><i class="bi bi-box-seam me-2"></i>Registrar Doação</a></li>
+    <li class="nav-item mb-2"><a href="editar.php?id=<?php echo $_SESSION['id_usuario']; ?>" class="nav-link text-white"><i class="bi bi-pencil-square me-2"></i>Editar Cadastro</a></li>
+    <li style="margin-top:auto; padding-top:1rem;">
+      <a href="logout.php" class="btn btn-light w-100"><i class="bi bi-box-arrow-right me-2"></i>Sair</a>
+    </li>
+  </ul>
 </div>
 
-<footer class="text-center mt-5">
+<div class="main-content">
+  <h2>Bem-vindo, <?php echo htmlspecialchars($usuario); ?>!</h2>
+  <p class="lead">Aqui você pode registrar novas doações de alimentos.</p>
+
+  <?php if (!$doador): ?>
+    <div class="alert alert-danger">Seu usuário não possui cadastro de doador vinculado.</div>
+  <?php else: ?>
+    <div class="card p-4 shadow-sm mt-3">
+      <form method="POST">
+        <input type="hidden" name="acao" value="registrar">
+        <div class="mb-3">
+          <label class="form-label">Nome do Alimento</label>
+          <input type="text" name="alimento" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Quantidade</label>
+          <input type="text" name="quantidade" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Depósito de Entrega</label>
+          <select name="id_deposito" class="form-select" required>
+            <?php foreach ($depositos as $deposito): ?>
+              <option value="<?php echo $deposito["id_deposito"]; ?>">
+                <?php echo htmlspecialchars($deposito["nome"] . " - " . $deposito["endereco"]); ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-success w-100">Registrar Doação</button>
+      </form>
+    </div>
+
+    <div class="card p-3 shadow-sm mt-4">
+      <h5>Histórico de Doações</h5>
+      <table class="table table-striped">
+        <thead><tr><th>Data</th><th>Depósito</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody>
+          <?php if (!empty($historico)): ?>
+            <?php foreach ($historico as $row): ?>
+              <tr>
+                <td><?php echo htmlspecialchars($row["data_doacao"]); ?></td>
+                <td><?php echo htmlspecialchars($row["deposito"]); ?></td>
+                <td><?php echo htmlspecialchars($row["descricao"]); ?></td>
+                <td><?php echo htmlspecialchars($row["status"]); ?></td>
+                <td>
+                  <?php if ($row["status"] === "pendente"): ?>
+                    <form method="POST">
+                      <input type="hidden" name="acao" value="cancelar">
+                      <input type="hidden" name="id_doacao" value="<?php echo $row["id_doacao"]; ?>">
+                      <button type="submit" class="btn btn-sm btn-outline-danger">Cancelar</button>
+                    </form>
+                  <?php endif; ?>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+          <?php else: ?>
+            <tr><td colspan="5" class="text-center">Nenhuma doação registrada.</td></tr>
+          <?php endif; ?>
+        </tbody>
+      </table>
+    </div>
+  <?php endif; ?>
+
+  <?php if (!empty($mensagem)): ?>
+    <div class="alert alert-<?php echo $tipoMensagem; ?> mt-3">
+      <?php echo htmlspecialchars($mensagem); ?>
+    </div>
+  <?php endif; ?>
+</div>
+
+<footer class="mt-5" style="margin-left:230px; text-align:center;">
   <img src="../assets/logo.png" alt="Distribuição" class="logo-footer">
 </footer>
 

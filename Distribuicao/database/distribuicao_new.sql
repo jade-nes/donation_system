@@ -1,11 +1,11 @@
-﻿CREATE DATABASE IF NOT EXISTS distribuicao_alimentos;
+CREATE DATABASE IF NOT EXISTS distribuicao_alimentos;
 USE distribuicao_alimentos;
 
 -- =========================================
 -- TABELA USUARIO
 -- =========================================
 CREATE TABLE usuario (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     senha VARCHAR(255) NOT NULL,

@@ -51,6 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <a href="recuperar_senha.php" class="text-decoration-none">Esqueceu a senha?</a>
       </div>
       <button type="submit" class="btn btn-primary w-100">Entrar</button>
+      <a href="index.php" class="btn btn-secondary w-100 mt-2">Voltar à página inicial</a>
     </form>
     <div class="text-center mt-3">
       <a href="cadastro.php" class="text-decoration-none">Ainda não tem conta? Cadastre-se</a>
